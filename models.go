@@ -13,6 +13,7 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	Name string `json:"name"`
 	Email string `json:"email"`
+	ApiKey string `json:"api_key"`
 }
 
 func convertDbUserToUser(dbUser databases.User) User {
@@ -22,5 +23,6 @@ func convertDbUserToUser(dbUser databases.User) User {
 		UpdatedAt: dbUser.UpdatedAt,
 		Name: dbUser.Name,
 		Email: dbUser.Email,
+		ApiKey: dbUser.ApiKey,
 	}
 }

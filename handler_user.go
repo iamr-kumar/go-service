@@ -6,11 +6,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/iamr-kumar/go-service/internal/auth"
 	"github.com/iamr-kumar/go-service/internal/databases"
 )
 
 
-func (config *apiConfig)handleCreateUser(w http.ResponseWriter, r *http.Request) {
+func (config *apiConfig) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Name string `json:"name"`
 		Email string `json:"email"`
@@ -35,9 +36,26 @@ func (config *apiConfig)handleCreateUser(w http.ResponseWriter, r *http.Request)
 	})
 
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Could not create user")
+		respondWithError(w, http.StatusBadRequest, "Could not create user") 
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, convertDbUserToUser(newUser))
+	respondWithJSON(w, http.StatusCreated, convertDbUserToUser(newUser))
+}
+
+func (config *apiConfig) handlerGetUserByApiKey(w http.ResponseWriter, r *http.Request) {
+	apiKey, err := auth.GetApiKey(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Invalid API Key")
+		return
+	} 
+
+	user, err := config.DB.GetUserByApiKey(r.Context(), apiKey)
+
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Invalid API Key")
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, convertDbUserToUser(user))
 }
